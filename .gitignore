@@ -1,0 +1,7 @@
+.venv
+.idea
+dist
+build
+gendia.egg-info
+setup.py
+MANIFEST.in

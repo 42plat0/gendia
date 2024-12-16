@@ -58,14 +58,17 @@ def get_color(entry: str) -> str:
     else:
         return COLOR_RESET
 
-def print_tree(directory: str, prefix: str = '', output: Optional[TextIO] = None, no_hidden: bool = True) -> None:
+def print_tree(directory: str, prefix: str = '', output: Optional[TextIO] = None, hidden: bool = None) -> None:
+    if hidden is None:
+        hidden = False
     # List all entries in the directory, sorting them so that directories come first
     try:
-        if no_hidden:
+        if hidden:
+            entries = sorted(os.listdir(directory), key=lambda x: (not os.path.isdir(os.path.join(directory, x)), x))
+        else:
             entries = sorted([entry for entry in os.listdir(directory) if not entry.startswith('.')],
                              key=lambda s: s.lower())
-        else:
-            entries = sorted(os.listdir(directory), key=lambda x: (not os.path.isdir(os.path.join(directory, x)), x))
+        
     except PermissionError:
         print(f"\033[31mPermission denied to access {directory}\033[0m")
         return
@@ -83,24 +86,21 @@ def print_tree(directory: str, prefix: str = '', output: Optional[TextIO] = None
         else:
             print(line)
 
-        # If the current item is a directory, recursively print its contents
+        # Recursively print the contents of directories
         if os.path.isdir(path):
             new_prefix = f"{prefix}    " if is_last else f"{prefix}│   "
-            print_tree(path, new_prefix, output)
+            print_tree(path, new_prefix, output, hidden)
 
 def main() -> None:
     # Create an argument parser
     parser = argparse.ArgumentParser(description="Display a color-coded tree-like directory structure")
     parser.add_argument('directory', type=str, nargs='?', default='.', help='The directory to display (default: current directory)')
     parser.add_argument('-o', '--output', type=str, help='The output file to write the diagram to')
-    parser.add_argument("--nohidden", action="store_true", help="Exclude hidden files and directories")
+    parser.add_argument("--hidden", action="store_true", help="Exclude hidden files and directories")
     parser.add_argument("-v", "--version", action="version", version="%(prog)s 1.0.0")
     args = parser.parse_args()
-
-    if args.nohidden:
-        nohidden = True
-    else:
-        nohidden = False
+    
+    print(f"Hidden before calling print_tree: {args.hidden}")  # Debug statement
 
     # Get the absolute path of the directory
     directory = os.path.abspath(args.directory)
@@ -109,7 +109,7 @@ def main() -> None:
             try:
                 with open(args.output, 'w+') as output_file:
                     output_file.write(directory + '\n')
-                    print_tree(directory, output=output_file, no_hidden=nohidden)
+                    print_tree(directory, output=output_file, hidden=args.hidden)
                 print(f"\033[32mDirectory structure written to {args.output}\033[0m")
             except IsADirectoryError:
                 print(f"\033[31m{args.output} is a directory, please provide a valid file name\033[0m")
@@ -117,7 +117,7 @@ def main() -> None:
                 print(f"\033[31mPermission denied to write to {args.output}\033[0m")
         else:
             print(f"\033[1m{directory}\033[0m")
-            print_tree(directory=directory, no_hidden=nohidden)
+            print_tree(directory=directory, hidden=args.hidden)
     else:
         print(f"\033[31m{directory} is not a valid directory\033[0m")
 

@@ -44,7 +44,7 @@ gendia path/to/directory -o output.txt
 ```
 This should generate a tree structured diagram for the directory you specified and save it to `output.txt`.
 
-`--nohidden` flag can be used to show hidden files and directories:
+`--hidden` flag can be used to show hidden files and directories:
 ```bash
-gendia path/to/directory --nohidden
+gendia path/to/directory --hidden
 ```

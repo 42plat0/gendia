@@ -2,6 +2,7 @@ import os
 import argparse
 from typing import TextIO, Optional
 
+exclude: list[str] = []
 
 # ANSI escape codes for coloring
 COLOR_BLUE = '\033[94m'  # Blue for directories
@@ -58,8 +59,11 @@ def get_color(entry: str) -> str:
     else:
         return COLOR_RESET
 
-def print_tree(directory: str, prefix: str = '', output: Optional[TextIO] = None, hidden: bool = False, exclude: list[str] = []) -> None:
+def print_tree(directory: str, prefix: str = '', output: Optional[TextIO] = None, hidden: bool = False) -> None:
     # List all entries in the directory, sorting them so that directories come first
+    global exclude
+    
+    print(exclude)
     try:
         if hidden:
             if exclude != []:
@@ -98,6 +102,8 @@ def print_tree(directory: str, prefix: str = '', output: Optional[TextIO] = None
             print_tree(path, new_prefix, output, hidden)
 
 def main() -> None:
+    global exclude
+    
     # Create an argument parser
     parser = argparse.ArgumentParser(description="Display a color-coded tree-like directory structure")
     parser.add_argument('directory', type=str, nargs='?', default='.', help='The directory to display (default: current directory)')
@@ -107,12 +113,12 @@ def main() -> None:
     parser.add_argument("--exclude", type=str, help="Exclude files and directories that match the given pattern")
     args = parser.parse_args()
     
-    word: str = None
-    
     try:
         excludelist = args.exclude.replace(" ", "").split(",")
     except AttributeError:
         excludelist = []
+
+    exclude = excludelist
 
     # Get the absolute path of the directory
     directory = os.path.abspath(args.directory)
@@ -121,7 +127,7 @@ def main() -> None:
             try:
                 with open(args.output, 'w+') as output_file:
                     output_file.write(directory + '\n')
-                    print_tree(directory, output=output_file, hidden=args.hidden, exclude=excludelist)
+                    print_tree(directory, output=output_file, hidden=args.hidden)
                 print(f"\033[32mDirectory structure written to {args.output}\033[0m")
             except IsADirectoryError:
                 print(f"\033[31m{args.output} is a directory, please provide a valid file name\033[0m")
@@ -129,7 +135,7 @@ def main() -> None:
                 print(f"\033[31mPermission denied to write to {args.output}\033[0m")
         else:
             print(f"\033[1m{directory}\033[0m")
-            print_tree(directory=directory, hidden=args.hidden, exclude=excludelist)
+            print_tree(directory=directory, hidden=args.hidden)
     else:
         print(f"\033[31m{directory} is not a valid directory\033[0m")
 

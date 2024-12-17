@@ -108,6 +108,11 @@ def main() -> None:
     args = parser.parse_args()
     
     word: str = None
+    
+    try:
+        excludelist = args.exclude.replace(" ", "").split(",")
+    except AttributeError:
+        excludelist = []
 
     # Get the absolute path of the directory
     directory = os.path.abspath(args.directory)
@@ -116,7 +121,7 @@ def main() -> None:
             try:
                 with open(args.output, 'w+') as output_file:
                     output_file.write(directory + '\n')
-                    print_tree(directory, output=output_file, hidden=args.hidden, exclude=args.exclude.replace(" ", "").split(","))
+                    print_tree(directory, output=output_file, hidden=args.hidden, exclude=excludelist)
                 print(f"\033[32mDirectory structure written to {args.output}\033[0m")
             except IsADirectoryError:
                 print(f"\033[31m{args.output} is a directory, please provide a valid file name\033[0m")
@@ -124,7 +129,7 @@ def main() -> None:
                 print(f"\033[31mPermission denied to write to {args.output}\033[0m")
         else:
             print(f"\033[1m{directory}\033[0m")
-            print_tree(directory=directory, hidden=args.hidden, exclude=args.exclude.replace(" ", "").split(","))
+            print_tree(directory=directory, hidden=args.hidden, exclude=excludelist)
     else:
         print(f"\033[31m{directory} is not a valid directory\033[0m")
 

@@ -99,8 +99,6 @@ def main() -> None:
     parser.add_argument("--hidden", action="store_true", help="Exclude hidden files and directories")
     parser.add_argument("-v", "--version", action="version", version="%(prog)s 1.0.0")
     args = parser.parse_args()
-    
-    print(f"Hidden before calling print_tree: {args.hidden}")  # Debug statement
 
     # Get the absolute path of the directory
     directory = os.path.abspath(args.directory)

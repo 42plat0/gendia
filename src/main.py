@@ -58,15 +58,21 @@ def get_color(entry: str) -> str:
     else:
         return COLOR_RESET
 
-def print_tree(directory: str, prefix: str = '', output: Optional[TextIO] = None, hidden: bool = None) -> None:
-    if hidden is None:
-        hidden = False
+def print_tree(directory: str, prefix: str = '', output: Optional[TextIO] = None, hidden: bool = False, exclude: list[str] = []) -> None:
     # List all entries in the directory, sorting them so that directories come first
     try:
         if hidden:
-            entries = sorted(os.listdir(directory), key=lambda x: (not os.path.isdir(os.path.join(directory, x)), x))
+            if exclude != []:
+                entries = sorted([entry for entry in os.listdir(directory) if entry not in exclude],
+                                 key=lambda s: s.lower())
+            else:
+                entries = sorted(os.listdir(directory), key=lambda x: (not os.path.isdir(os.path.join(directory, x)), x))
         else:
-            entries = sorted([entry for entry in os.listdir(directory) if not entry.startswith('.')],
+            if exclude != []:
+                entries = sorted([entry for entry in os.listdir(directory) if not entry.startswith('.') and entry not in exclude],
+                                 key=lambda s: s.lower())
+            else:
+                entries = sorted([entry for entry in os.listdir(directory) if not entry.startswith('.')],
                              key=lambda s: s.lower())
         
     except PermissionError:
@@ -98,7 +104,10 @@ def main() -> None:
     parser.add_argument('-o', '--output', type=str, help='The output file to write the diagram to')
     parser.add_argument("--hidden", action="store_true", help="Exclude hidden files and directories")
     parser.add_argument("-v", "--version", action="version", version="%(prog)s 1.0.0")
+    parser.add_argument("--exclude", type=str, help="Exclude files and directories that match the given pattern")
     args = parser.parse_args()
+    
+    word: str = None
 
     # Get the absolute path of the directory
     directory = os.path.abspath(args.directory)
@@ -107,7 +116,7 @@ def main() -> None:
             try:
                 with open(args.output, 'w+') as output_file:
                     output_file.write(directory + '\n')
-                    print_tree(directory, output=output_file, hidden=args.hidden)
+                    print_tree(directory, output=output_file, hidden=args.hidden, exclude=args.exclude.replace(" ", "").split(","))
                 print(f"\033[32mDirectory structure written to {args.output}\033[0m")
             except IsADirectoryError:
                 print(f"\033[31m{args.output} is a directory, please provide a valid file name\033[0m")
@@ -115,7 +124,7 @@ def main() -> None:
                 print(f"\033[31mPermission denied to write to {args.output}\033[0m")
         else:
             print(f"\033[1m{directory}\033[0m")
-            print_tree(directory=directory, hidden=args.hidden)
+            print_tree(directory=directory, hidden=args.hidden, exclude=args.exclude.replace(" ", "").split(","))
     else:
         print(f"\033[31m{directory} is not a valid directory\033[0m")
 

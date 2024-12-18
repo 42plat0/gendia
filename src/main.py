@@ -3,6 +3,8 @@ import argparse
 from typing import TextIO, Optional
 
 exclude: list[str] = []
+maxdepth: int = None
+currdepth: int = 0
 
 # ANSI escape codes for coloring
 COLOR_BLUE = '\033[94m'  # Blue for directories
@@ -28,6 +30,8 @@ def get_color(entry: str) -> str:
     """Returns color based on file type."""
     if os.path.isdir(entry):
         return COLOR_BLUE
+    elif entry.endswith('.md'):
+        return COLOR_GRAY
     elif entry.endswith('.py'):
         return COLOR_GREEN
     elif entry.endswith('.pyc'):
@@ -61,7 +65,16 @@ def get_color(entry: str) -> str:
 
 def print_tree(directory: str, prefix: str = '', output: Optional[TextIO] = None, hidden: bool = False) -> None:
     # List all entries in the directory, sorting them so that directories come first
+    global currdepth
+    global maxdepth
     global exclude
+    
+    if currdepth == maxdepth:
+        return
+    
+    currdepth += 1
+    
+    
     try:
         if hidden:
             if exclude:
@@ -101,20 +114,24 @@ def print_tree(directory: str, prefix: str = '', output: Optional[TextIO] = None
 
 def main() -> None:
     global exclude
+    global maxdepth
     
     # Create an argument parser
     parser = argparse.ArgumentParser(description="Display a color-coded tree-like directory structure")
     parser.add_argument('directory', type=str, nargs='?', default='.', help='The directory to display (default: current directory)')
     parser.add_argument('-o', '--output', type=str, help='The output file to write the diagram to')
     parser.add_argument("--hidden", action="store_true", help="Exclude hidden files and directories")
-    parser.add_argument("-v", "--version", action="version", version="%(prog)s 1.0.0")
+    parser.add_argument("-v", "--version", action="version", version="%(prog)s 1.2.3")
     parser.add_argument("--exclude", type=str, help="Exclude files and directories that match the given pattern")
+    parser.add_argument("--depth", type=int, help="Limit the depth of the tree diagram")
     args = parser.parse_args()
     
     try:
         excludelist = args.exclude.replace(" ", "").split(",")
     except AttributeError:
         excludelist = []
+        
+    maxdepth = args.depth
 
     exclude = excludelist
 

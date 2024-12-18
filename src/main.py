@@ -62,17 +62,15 @@ def get_color(entry: str) -> str:
 def print_tree(directory: str, prefix: str = '', output: Optional[TextIO] = None, hidden: bool = False) -> None:
     # List all entries in the directory, sorting them so that directories come first
     global exclude
-    
-    print(exclude)
     try:
         if hidden:
-            if exclude != []:
+            if exclude:
                 entries = sorted([entry for entry in os.listdir(directory) if entry not in exclude],
                                  key=lambda s: s.lower())
             else:
                 entries = sorted(os.listdir(directory), key=lambda x: (not os.path.isdir(os.path.join(directory, x)), x))
         else:
-            if exclude != []:
+            if exclude:
                 entries = sorted([entry for entry in os.listdir(directory) if not entry.startswith('.') and entry not in exclude],
                                  key=lambda s: s.lower())
             else:

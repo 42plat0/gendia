@@ -1,10 +1,27 @@
 import os
 import argparse
 from typing import TextIO, Optional
+import configparser
 
-exclude: list[str] = []
+def read_config_file(config, file_paths):
+    for file_path in file_paths:
+        try:
+            config.read(os.path.expanduser(file_path))
+            return config.get('settings', 'exclude').replace(" ", "").split(",")
+        except FileNotFoundError:
+            continue
+        except configparser.NoSectionError:
+            continue
+    return []
+
+config = configparser.ConfigParser()
+config_file_paths = ['~/Scripts/gendia_config.ini', '~/gendia_config.ini']
+exclude = read_config_file(config, config_file_paths)
+
 maxdepth: int = None
 currdepth: int = 0
+
+# print(exclude)
 
 # ANSI escape codes for coloring
 COLOR_BLUE = '\033[94m'  # Blue for directories
@@ -127,13 +144,11 @@ def main() -> None:
     args = parser.parse_args()
     
     try:
-        excludelist = args.exclude.replace(" ", "").split(",")
+        exclude.extend(args.exclude.replace(" ", "").split(","))
     except AttributeError:
-        excludelist = []
+        exclude.extend([])
         
     maxdepth = args.depth
-
-    exclude = excludelist
 
     # Get the absolute path of the directory
     directory = os.path.abspath(args.directory)

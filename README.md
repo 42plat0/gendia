@@ -53,3 +53,21 @@ gendia --hidden
 ```bash
 gendia --depth 1
 ```
+
+### Config files
+Gendia's config file can reside in either of the 2 directory's: 
+```
+~/gendia_config.ini
+```
+or
+```
+~/Scripts/gendia_config.ini
+```
+
+You can add the following contents to the file:
+```ini
+[settings]
+exclude = .git,__pycache__,venv
+```
+
+The excluded files and foulders in the config file will be appended to the other excluded files you later specify with the `--exclude` flag.

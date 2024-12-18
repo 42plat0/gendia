@@ -38,11 +38,11 @@ To use `gendia`, run:
 ```bash
 gendia path/to/directory
 ```
-This should generate a tree structured diagram for the directory you specified. You can also specify the output file by using the `-o` flag:
+This should generate a tree structured diagram for the current working directory. You can also specify the output file by using the `-o` flag:
 ```bash
 gendia -o output.txt
 ```
-This should generate a tree structured diagram for the directory you specified and save it to `output.txt`.
+This should generate a tree structured diagram for the current working directory and save it to `output.txt`.
 
 `--hidden` flag can be used to show hidden files and directories:
 ```bash

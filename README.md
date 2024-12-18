@@ -14,11 +14,11 @@ project
 │   ├── utils
 │   │   ├── __init__.py
 │   │   ├── helper.py
-│   │   └──  helper2.py
+│   │   └── helper2.py
 │   ├── tests
 │   │   ├── __init__.py
 │   │   ├── test_main.py
-│   │   └──  test_helper.py
+│   │   └── test_helper.py
 │   └── README.md
 ├── LICENSE
 └── .gitignore
@@ -40,11 +40,16 @@ gendia path/to/directory
 ```
 This should generate a tree structured diagram for the directory you specified. You can also specify the output file by using the `-o` flag:
 ```bash
-gendia path/to/directory -o output.txt
+gendia -o output.txt
 ```
 This should generate a tree structured diagram for the directory you specified and save it to `output.txt`.
 
 `--hidden` flag can be used to show hidden files and directories:
 ```bash
-gendia path/to/directory --hidden
+gendia --hidden
+```
+
+`--depth` flag can be used to specify the max depth of the foulders to go into, 1 being the lowest:
+```bash
+gendia --depth 1
 ```

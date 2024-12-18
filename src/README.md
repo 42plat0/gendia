@@ -14,11 +14,11 @@ project
 │   ├── utils
 │   │   ├── __init__.py
 │   │   ├── helper.py
-│   │   └──  helper2.py
+│   │   └── helper2.py
 │   ├── tests
 │   │   ├── __init__.py
 │   │   ├── test_main.py
-│   │   └──  test_helper.py
+│   │   └── test_helper.py
 │   └── README.md
 ├── LICENSE
 └── .gitignore
@@ -27,4 +27,29 @@ project
 Not just that, it is color coded! The directories are in blue, and different file types are in different colors. This makes it easier to understand the structure of the directory.
 
 ## Installation
-To add `gendia`
+To add `gendia` to your project, run:
+```bash
+pip install gendia
+```
+This should install `gendia` to your project. You can now use it to generate tree structured diagrams for your directories.
+
+## Usage
+To use `gendia`, run:
+```bash
+gendia path/to/directory
+```
+This should generate a tree structured diagram for the directory you specified. You can also specify the output file by using the `-o` flag:
+```bash
+gendia -o output.txt
+```
+This should generate a tree structured diagram for the directory you specified and save it to `output.txt`.
+
+`--hidden` flag can be used to show hidden files and directories:
+```bash
+gendia --hidden
+```
+
+`--depth` flag can be used to specify the max depth of the foulders to go into, 1 being the lowest:
+```bash
+gendia --depth 1
+```

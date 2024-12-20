@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='gendia',
-    version='1.3.4',
+    version='1.5.4',
     packages=find_packages(),
     install_requires=[
         # List your dependencies here

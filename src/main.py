@@ -2,6 +2,7 @@ import os
 import argparse
 from typing import TextIO, Optional
 import configparser
+import re
 
 def read_config_file(config, file_paths):
     for file_path in file_paths:
@@ -20,6 +21,8 @@ exclude = read_config_file(config, config_file_paths)
 
 maxdepth: int = None
 currdepth: int = 0
+matchpattern: str = ""
+notmatchpattern: str = ""
 
 # print(exclude)
 
@@ -80,32 +83,43 @@ def get_color(entry: str) -> str:
     else:
         return COLOR_RESET
 
-def print_tree(directory: str, prefix: str = '', output: Optional[TextIO] = None, hidden: bool = False) -> None:
-    # List all entries in the directory, sorting them so that directories come first
+def print_tree(directory: str, prefix: str = '', output: Optional[TextIO] = None, hidden: bool = False, directories_only: bool = False) -> None:
     global currdepth
     global maxdepth
     global exclude
+    global matchpattern
     
     if currdepth == maxdepth:
         return
     
     currdepth += 1
     
-    
     try:
-        if hidden:
-            if exclude:
-                entries = sorted([entry for entry in os.listdir(directory) if entry not in exclude],
-                                 key=lambda s: s.lower())
-            else:
-                entries = sorted(os.listdir(directory), key=lambda x: (not os.path.isdir(os.path.join(directory, x)), x))
-        else:
-            if exclude:
-                entries = sorted([entry for entry in os.listdir(directory) if not entry.startswith('.') and entry not in exclude],
-                                 key=lambda s: s.lower())
-            else:
-                entries = sorted([entry for entry in os.listdir(directory) if not entry.startswith('.')],
-                             key=lambda s: s.lower())
+        # List all entries in the directory
+        entries = os.listdir(directory)
+        
+        # Filter entries based on pattern
+        if matchpattern:
+            entries = [entry for entry in entries if re.search(matchpattern, entry)]
+            
+        # Filter entries based on not pattern
+        if notmatchpattern:
+            entries = [entry for entry in entries if not re.search(notmatchpattern, entry)]
+        
+        # Filter entries based on directories_only
+        if directories_only:
+            entries = [entry for entry in entries if os.path.isdir(os.path.join(directory, entry))]
+        
+        # Filter entries based on hidden
+        if not hidden:
+            entries = [entry for entry in entries if not entry.startswith('.')]
+        
+        # Filter entries based on exclude
+        if exclude:
+            entries = [entry for entry in entries if entry not in exclude]
+        
+        # Sort the entries
+        entries = sorted(entries, key=lambda s: (not os.path.isdir(os.path.join(directory, s)), s.lower()))
         
     except PermissionError:
         print(f"\033[31mPermission denied to access {directory}\033[0m")
@@ -127,11 +141,15 @@ def print_tree(directory: str, prefix: str = '', output: Optional[TextIO] = None
         # Recursively print the contents of directories
         if os.path.isdir(path):
             new_prefix = f"{prefix}    " if is_last else f"{prefix}│   "
-            print_tree(path, new_prefix, output, hidden)
+            print_tree(path, new_prefix, output, hidden, directories_only)
+
+    currdepth -= 1
 
 def main() -> None:
     global exclude
     global maxdepth
+    global matchpattern
+    global notmatchpattern
     
     # Create an argument parser
     parser = argparse.ArgumentParser(description="Display a color-coded tree-like directory structure")
@@ -141,6 +159,10 @@ def main() -> None:
     parser.add_argument("-v", "--version", action="version", version="%(prog)s 1.2.3")
     parser.add_argument("--exclude", type=str, help="Exclude files and directories that match the given pattern")
     parser.add_argument("--depth", type=int, help="Limit the depth of the tree diagram")
+    parser.add_argument("-d", action="store_true", help="Show directories only")
+    parser.add_argument("-P", type=str, help="Show only files matching the pattern")
+    parser.add_argument("-l", type=str, help="Do not show files matching the pattern")
+    parser.add_argument("--ignore-config", action="store_true", help="Ignore the configuration file")
     args = parser.parse_args()
     
     try:
@@ -149,6 +171,11 @@ def main() -> None:
         exclude.extend([])
         
     maxdepth = args.depth
+    matchpattern = args.P
+    notmatchpattern = args.l
+    
+    if args.ignore_config:
+        exclude = []
 
     # Get the absolute path of the directory
     directory = os.path.abspath(args.directory)
@@ -157,7 +184,7 @@ def main() -> None:
             try:
                 with open(args.output, 'w+') as output_file:
                     output_file.write(directory + '\n')
-                    print_tree(directory, output=output_file, hidden=args.hidden)
+                    print_tree(directory, output=output_file, hidden=args.hidden, directories_only=args.d)
                 print(f"\033[32mDirectory structure written to {args.output}\033[0m")
             except IsADirectoryError:
                 print(f"\033[31m{args.output} is a directory, please provide a valid file name\033[0m")
@@ -165,7 +192,7 @@ def main() -> None:
                 print(f"\033[31mPermission denied to write to {args.output}\033[0m")
         else:
             print(f"\033[1m{directory}\033[0m")
-            print_tree(directory=directory, hidden=args.hidden)
+            print_tree(directory=directory, hidden=args.hidden, directories_only=args.d)
     else:
         print(f"\033[31m{directory} is not a valid directory\033[0m")
 

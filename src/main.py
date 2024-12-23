@@ -146,55 +146,59 @@ def print_tree(directory: str, prefix: str = '', output: Optional[TextIO] = None
     currdepth -= 1
 
 def main() -> None:
-    global exclude
-    global maxdepth
-    global matchpattern
-    global notmatchpattern
-    
-    # Create an argument parser
-    parser = argparse.ArgumentParser(description="Display a color-coded tree-like directory structure")
-    parser.add_argument('directory', type=str, nargs='?', default='.', help='The directory to display (default: current directory)')
-    parser.add_argument('-o', '--output', type=str, help='The output file to write the diagram to')
-    parser.add_argument("--hidden", action="store_true", help="Exclude hidden files and directories")
-    parser.add_argument("-v", "--version", action="version", version="%(prog)s 1.2.3")
-    parser.add_argument("--exclude", type=str, help="Exclude files and directories that match the given pattern")
-    parser.add_argument("--depth", type=int, help="Limit the depth of the tree diagram")
-    parser.add_argument("-d", action="store_true", help="Show directories only")
-    parser.add_argument("-P", type=str, help="Show only files matching the pattern")
-    parser.add_argument("-l", type=str, help="Do not show files matching the pattern")
-    parser.add_argument("--ignore-config", action="store_true", help="Ignore the configuration file")
-    args = parser.parse_args()
-    
     try:
-        exclude.extend(args.exclude.replace(" ", "").split(","))
-    except AttributeError:
-        exclude.extend([])
+        global exclude
+        global maxdepth
+        global matchpattern
+        global notmatchpattern
         
-    maxdepth = args.depth
-    matchpattern = args.P
-    notmatchpattern = args.l
-    
-    if args.ignore_config:
-        exclude = []
+        # Create an argument parser
+        parser = argparse.ArgumentParser(description="Display a color-coded tree-like directory structure")
+        parser.add_argument('directory', type=str, nargs='?', default='.', help='The directory to display (default: current directory)')
+        parser.add_argument('-o', '--output', type=str, help='The output file to write the diagram to')
+        parser.add_argument("--hidden", action="store_true", help="Exclude hidden files and directories")
+        parser.add_argument("-v", "--version", action="version", version="%(prog)s 1.2.3")
+        parser.add_argument("--exclude", type=str, help="Exclude files and directories that match the given pattern")
+        parser.add_argument("--depth", type=int, help="Limit the depth of the tree diagram")
+        parser.add_argument("-d", action="store_true", help="Show directories only")
+        parser.add_argument("-P", type=str, help="Show only files matching the pattern")
+        parser.add_argument("-l", type=str, help="Do not show files matching the pattern")
+        parser.add_argument("--ignore-config", action="store_true", help="Ignore the configuration file")
+        args = parser.parse_args()
+        
+        try:
+            exclude.extend(args.exclude.replace(" ", "").split(","))
+        except AttributeError:
+            exclude.extend([])
+            
+        maxdepth = args.depth
+        matchpattern = args.P
+        notmatchpattern = args.l
+        
+        if args.ignore_config:
+            exclude = []
 
-    # Get the absolute path of the directory
-    directory = os.path.abspath(args.directory)
-    if os.path.isdir(directory):
-        if args.output:
-            try:
-                with open(args.output, 'w+') as output_file:
-                    output_file.write(directory + '\n')
-                    print_tree(directory, output=output_file, hidden=args.hidden, directories_only=args.d)
-                print(f"\033[32mDirectory structure written to {args.output}\033[0m")
-            except IsADirectoryError:
-                print(f"\033[31m{args.output} is a directory, please provide a valid file name\033[0m")
-            except PermissionError:
-                print(f"\033[31mPermission denied to write to {args.output}\033[0m")
+        # Get the absolute path of the directory
+        directory = os.path.abspath(args.directory)
+        if os.path.isdir(directory):
+            if args.output:
+                try:
+                    with open(args.output, 'w+') as output_file:
+                        output_file.write(directory + '\n')
+                        print_tree(directory, output=output_file, hidden=args.hidden, directories_only=args.d)
+                    print(f"\033[32mDirectory structure written to {args.output}\033[0m")
+                except IsADirectoryError:
+                    print(f"\033[31m{args.output} is a directory, please provide a valid file name\033[0m")
+                except PermissionError:
+                    print(f"\033[31mPermission denied to write to {args.output}\033[0m")
+            else:
+                print(f"\033[1m{directory}\033[0m")
+                print_tree(directory=directory, hidden=args.hidden, directories_only=args.d)
         else:
-            print(f"\033[1m{directory}\033[0m")
-            print_tree(directory=directory, hidden=args.hidden, directories_only=args.d)
-    else:
-        print(f"\033[31m{directory} is not a valid directory\033[0m")
+            print(f"\033[31m{directory} is not a valid directory\033[0m")
+        pass
+    except KeyboardInterrupt:
+        print("\033[31m\nProgram terminated\033[0m")
 
 if __name__ == '__main__':
     main()

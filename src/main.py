@@ -180,19 +180,22 @@ def main() -> None:
     # Get the absolute path of the directory
     directory = os.path.abspath(args.directory)
     if os.path.isdir(directory):
-        if args.output:
-            try:
-                with open(args.output, 'w+') as output_file:
-                    output_file.write(directory + '\n')
-                    print_tree(directory, output=output_file, hidden=args.hidden, directories_only=args.d)
-                print(f"\033[32mDirectory structure written to {args.output}\033[0m")
-            except IsADirectoryError:
-                print(f"\033[31m{args.output} is a directory, please provide a valid file name\033[0m")
-            except PermissionError:
-                print(f"\033[31mPermission denied to write to {args.output}\033[0m")
-        else:
-            print(f"\033[1m{directory}\033[0m")
-            print_tree(directory=directory, hidden=args.hidden, directories_only=args.d)
+        try:
+            if args.output:
+                try:
+                    with open(args.output, 'w+') as output_file:
+                        output_file.write(directory + '\n')
+                        print_tree(directory, output=output_file, hidden=args.hidden, directories_only=args.d)
+                    print(f"\033[32mDirectory structure written to {args.output}\033[0m")
+                except IsADirectoryError:
+                    print(f"\033[31m{args.output} is a directory, please provide a valid file name\033[0m")
+                except PermissionError:
+                    print(f"\033[31mPermission denied to write to {args.output}\033[0m")
+            else:
+                print(f"\033[1m{directory}\033[0m")
+                print_tree(directory=directory, hidden=args.hidden, directories_only=args.d)
+        except KeyboardInterrupt:
+            print("\033[31m\nProgram terminated\033[0m")
     else:
         print(f"\033[31m{directory} is not a valid directory\033[0m")
 

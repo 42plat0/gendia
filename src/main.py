@@ -198,7 +198,6 @@ def main() -> None:
             print("\033[31m\nProgram terminated\033[0m")
     else:
         print(f"\033[31m{directory} is not a valid directory\033[0m")
-    pass
 
 if __name__ == '__main__':
     main()

@@ -1,4 +1,7 @@
 # gendia
+[![PyPI Downloads](https://static.pepy.tech/badge/gendia)](https://pepy.tech/projects/gendia)
+
+---
 A Python CLI to generate a tree structured diagram for any directory!
 
 ---

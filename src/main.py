@@ -153,9 +153,9 @@ def main() -> None:
     
     # Create an argument parser
     parser = argparse.ArgumentParser(description="Display a color-coded tree-like directory structure")
-    parser.add_argument('directory', type=str, nargs='?', default='.', help='The directory to display (default: current directory)')
-    parser.add_argument('-o', '--output', type=str, help='The output file to write the diagram to')
-    parser.add_argument("--hidden", action="store_true", help="Exclude hidden files and directories")
+    parser.add_argument("directory", type=str, nargs="?", default=".", help="The directory to display (default: current directory)")
+    parser.add_argument("-o", "--output", type=str, help="The output file to write the diagram to")
+    parser.add_argument("-H", "--hidden", action="store_true", help="Exclude hidden files and directories")
     parser.add_argument("-v", "--version", action="version", version="%(prog)s 1.2.3")
     parser.add_argument("--exclude", type=str, help="Exclude files and directories that match the given pattern")
     parser.add_argument("--depth", type=int, help="Limit the depth of the tree diagram")

@@ -1,8 +1,9 @@
-import os
 import argparse
-from typing import TextIO, Optional
 import configparser
+import os
 import re
+from typing import Optional, TextIO
+
 
 def read_config_file(config, file_paths):
     for file_path in file_paths:

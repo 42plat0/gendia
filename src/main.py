@@ -26,8 +26,6 @@ currdepth: int = 0
 matchpattern: str = ""
 notmatchpattern: str = ""
 
-# print(exclude)
-
 # ANSI escape codes for coloring
 COLOR_BLUE = "\033[94m"  # Blue for directories
 COLOR_GREEN = "\033[92m"  # Green for Python files

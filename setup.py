@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 setup(
     name='gendia',
     version='1.5.4',
-    packages=find_packages(),
+    packages=find_packages(include=["src", "src.*"]),
     install_requires=[
         # List your dependencies here
     ],

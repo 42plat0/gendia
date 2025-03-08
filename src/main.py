@@ -4,6 +4,7 @@ import os
 import re
 from typing import Optional, TextIO
 
+from . import constants
 
 def read_config_file(config, file_paths):
     for file_path in file_paths:
@@ -26,63 +27,19 @@ currdepth: int = 0
 matchpattern: str = ""
 notmatchpattern: str = ""
 
-# ANSI escape codes for coloring
-COLOR_BLUE = "\033[94m"  # Blue for directories
-COLOR_GREEN = "\033[92m"  # Green for Python files
-COLOR_YELLOW = "\033[93m"  # Yellow for compiled Python files
-COLOR_RESET = "\033[0m"  # Reset to default color
-COLOR_ORANGE = "\033[33m"  # Orange for JavaScript files
-COLOR_RED = "\033[31m"  # Red for C files
-COLOR_LIGHT_BLUE = "\033[36m"  # Light blue for C++ files
-COLOR_PURPLE = "\033[35m"  # Purple for Java files
-COLOR_PINK = "\033[95m"  # Pink for Ruby files
-COLOR_WHITE = "\033[97m"  # White for text files
-COLOR_GRAY = "\033[90m"  # Gray for other files
-COLOR_MAGENTA = "\033[95m"  # Magenta for image files
-COLOR_CYAN = "\033[96m"  # Cyan for audio files
-COLOR_LIGHT_GREEN = "\033[92m"  # Light green for video files
-COLOR_LIGHT_YELLOW = "\033[93m"  # Light yellow for compressed files
-COLOR_LIGHT_RED = "\033[91m"  # Light red for executable files
-COLOR_LIGHT_PURPLE = "\033[95m"  # Light purple for library directories
-UNDERLINE = "\033[4m"  # Underline for symbolic links
-
 
 def get_color(entry: str) -> str:
     """Returns color based on file type."""
+    entry_ext = os.path.splitext(entry)[-1]
+
     if os.path.isdir(entry):
-        return COLOR_BLUE
-    elif entry.endswith(".md"):
-        return COLOR_GRAY
-    elif entry.endswith(".py"):
-        return COLOR_GREEN
-    elif entry.endswith(".pyc"):
-        return COLOR_YELLOW
-    elif entry.endswith(".js"):
-        return COLOR_ORANGE
-    elif entry.endswith(".c"):
-        return COLOR_RED
-    elif entry.endswith(".cpp"):
-        return COLOR_LIGHT_BLUE
-    elif entry.endswith(".java"):
-        return COLOR_PURPLE
-    elif entry.endswith(".rb"):
-        return COLOR_PINK
-    elif entry.endswith(".txt"):
-        return COLOR_WHITE
-    elif entry.endswith(".jpg") or entry.endswith(".png") or entry.endswith(".gif"):
-        return COLOR_MAGENTA
-    elif entry.endswith(".mp3") or entry.endswith(".wav"):
-        return COLOR_CYAN
-    elif entry.endswith(".mp4") or entry.endswith(".avi") or entry.endswith(".mkv"):
-        return COLOR_LIGHT_GREEN
-    elif entry.endswith(".zip") or entry.endswith(".tar") or entry.endswith(".gz"):
-        return COLOR_LIGHT_YELLOW
-    elif entry.endswith(".exe"):
-        return COLOR_LIGHT_RED
+        return constants.AnsiColor.BLUE
     elif os.path.islink(entry):
-        return UNDERLINE
+        return constants.AnsiColor.UNDERLINE
+    elif entry_ext in constants.ASSIGNED_COLORS:
+        return constants.ASSIGNED_COLORS[entry_ext]
     else:
-        return COLOR_RESET
+        return constants.AnsiColor.RESET
 
 
 def print_tree(
@@ -146,7 +103,7 @@ def print_tree(
         path = os.path.join(directory, entry)
         is_last = index == len(entries) - 1
         color = get_color(path) if output is None else ""
-        reset = COLOR_RESET if output is None else ""
+        reset = constants.AnsiColor.RESET if output is None else ""
 
         # Print the current item with the appropriate prefix
         line = (

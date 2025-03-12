@@ -30,16 +30,21 @@ notmatchpattern: str = ""
 
 def get_color(entry: str) -> str:
     """Returns color based on file type."""
-    entry_ext = os.path.splitext(entry)[-1]
 
     if os.path.isdir(entry):
         return constants.AnsiColor.BLUE
     elif os.path.islink(entry):
         return constants.AnsiColor.UNDERLINE
-    elif entry_ext in constants.ASSIGNED_COLORS:
+
+    ext_off = entry.find(".")
+
+    try:
+        entry_ext = entry[ext_off:] if ext_off != -1 else None
         return constants.ASSIGNED_COLORS[entry_ext]
-    else:
-        return constants.AnsiColor.RESET
+    except KeyError:
+        pass
+
+    return constants.AnsiColor.RESET
 
 
 def print_tree(
@@ -92,15 +97,16 @@ def print_tree(
         # Sort the entries
         entries = sorted(
             entries,
-            key=lambda s: (not os.path.isdir(os.path.join(directory, s)), s.lower()),
+            key=lambda s: (not os.path.isdir(f"{directory}/{s}"), s.lower()),
         )
 
     except PermissionError:
         print(f"\033[31mPermission denied to access {directory}\033[0m")
         return
-
-    for index, entry in enumerate(entries):
-        path = os.path.join(directory, entry)
+    
+    index = 0
+    for entry in entries:
+        path = f"{directory}/{entry}"
         is_last = index == len(entries) - 1
         color = get_color(path) if output is None else ""
         reset = constants.AnsiColor.RESET if output is None else ""
@@ -120,6 +126,8 @@ def print_tree(
         if os.path.isdir(path):
             new_prefix = f"{prefix}    " if is_last else f"{prefix}│   "
             print_tree(path, new_prefix, output, hidden, directories_only)
+        
+        index += 1
 
     currdepth -= 1
 

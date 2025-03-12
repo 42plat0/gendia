@@ -6,3 +6,4 @@ gendia.egg-info
 setup.py
 MANIFEST.in
 venv
+__pycache__

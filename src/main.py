@@ -158,7 +158,7 @@ def main() -> None:
         action="store_true",
         help="Exclude hidden files and directories",
     )
-    parser.add_argument("-v", "--version", action="version", version="%(prog)s 1.2.3")
+    parser.add_argument("-v", "--version", action="version", version="%(prog)s 1.6.1")
     parser.add_argument(
         "--exclude",
         type=str,

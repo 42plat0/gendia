@@ -1,6 +1,3 @@
-from enum import Enum
-
-
 class AnsiColor:
     BLUE = "\033[94m"  # Blue for directories
     GREEN = "\033[92m"  # Green for Python files

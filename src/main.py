@@ -46,6 +46,20 @@ def get_color(entry: str) -> str:
 
     return constants.AnsiColor.RESET
 
+def get_icon(entry : str) -> str:
+    """Returns icon based on file type."""
+    if os.path.isdir(entry):
+        return constants.Icons.DIR
+    
+    ext_start_ind = entry.find(".")
+    try:
+        ext = entry[ext_start_ind:] if ext_start_ind != -1 else None
+        return constants.ASSIGNED_ICONS[ext]
+    except KeyError:
+        pass
+
+    return constants.Icons.FILE
+
 
 def print_tree(
     directory: str,
@@ -109,13 +123,14 @@ def print_tree(
         path = f"{directory}/{entry}"
         is_last = index == len(entries) - 1
         color = get_color(path) if output is None else ""
+        icon = get_icon(path)
         reset = constants.AnsiColor.RESET if output is None else ""
 
         # Print the current item with the appropriate prefix
         line = (
-            f"{prefix}└── {color}{entry}{reset}"
+            f"{prefix}└──{icon} {color}{entry}{reset}"
             if is_last
-            else f"{prefix}├── {color}{entry}{reset}"
+            else f"{prefix}├──{icon} {color}{entry}{reset}"
         )
         if output:
             output.write(line + "\n")

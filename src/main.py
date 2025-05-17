@@ -4,7 +4,7 @@ import os
 import re
 from typing import Optional, TextIO
 
-from . import constants
+import constants
 
 def read_config_file(config, file_paths):
     for file_path in file_paths:

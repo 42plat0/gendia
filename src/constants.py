@@ -42,3 +42,18 @@ ASSIGNED_COLORS = {
     ".gz": AnsiColor.LIGHT_YELLOW,
     ".exe": AnsiColor.LIGHT_RED,
 }
+
+class Icons:
+    DIR = "📁"
+    FILE = "📄"
+    IMG = "🖼️"
+    ARCHIVE = "📦"
+
+ASSIGNED_ICONS = {
+    ".png": Icons.IMG,
+    ".jpg": Icons.IMG,
+    ".gif": Icons.IMG,
+    ".zip": Icons.ARCHIVE,
+    ".tar": Icons.ARCHIVE,
+    ".gz": Icons.ARCHIVE,
+}

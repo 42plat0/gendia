@@ -24,6 +24,7 @@ exclude = read_config_file(config, config_file_paths)
 
 maxdepth: int = None
 currdepth: int = 0
+showIcons: bool = False
 matchpattern: str = ""
 notmatchpattern: str = ""
 
@@ -46,6 +47,19 @@ def get_color(entry: str) -> str:
 
     return constants.AnsiColor.RESET
 
+def get_icon(entry : str) -> str:
+    """Returns icon based on file type."""
+    if os.path.isdir(entry):
+        return constants.Icons.DIR
+    
+    ext_start_ind = entry.find(".")
+    ext = entry[ext_start_ind:]
+
+    if ext_start_ind == -1 or ext not in constants.ASSIGNED_ICONS.keys():
+        return constants.Icons.FILE
+    
+    return constants.ASSIGNED_ICONS[ext]
+
 
 def print_tree(
     directory: str,
@@ -58,6 +72,7 @@ def print_tree(
     global maxdepth
     global exclude
     global matchpattern
+    global showIcons 
 
     if currdepth == maxdepth:
         return
@@ -109,13 +124,14 @@ def print_tree(
         path = f"{directory}/{entry}"
         is_last = index == len(entries) - 1
         color = get_color(path) if output is None else ""
+        icon = get_icon(path) if showIcons else ""
         reset = constants.AnsiColor.RESET if output is None else ""
 
         # Print the current item with the appropriate prefix
         line = (
-            f"{prefix}└── {color}{entry}{reset}"
+            f"{prefix}└──{icon}{color}{entry}{reset}"
             if is_last
-            else f"{prefix}├── {color}{entry}{reset}"
+            else f"{prefix}├──{icon}{color}{entry}{reset}"
         )
         if output:
             output.write(line + "\n")
@@ -137,6 +153,7 @@ def main() -> None:
     global maxdepth
     global matchpattern
     global notmatchpattern
+    global showIcons 
 
     # Create an argument parser
     parser = argparse.ArgumentParser(
@@ -171,6 +188,7 @@ def main() -> None:
     parser.add_argument(
         "--ignore-config", action="store_true", help="Ignore the configuration file"
     )
+    parser.add_argument("-i", "--icon", action="store_true", help="Show icon base on file type")
     args = parser.parse_args()
 
     try:
@@ -181,6 +199,7 @@ def main() -> None:
     maxdepth = args.depth
     matchpattern = args.P
     notmatchpattern = args.l
+    showIcons = args.icon
 
     if args.ignore_config:
         exclude = []

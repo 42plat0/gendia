@@ -57,6 +57,16 @@ gendia --hidden
 gendia --depth 1
 ```
 
+`-i` flag enables icons, which are unicode/emoji characters that represent the file types. This is useful for quickly identifying the file types in the tree structure:
+```bash
+gendia -i
+```
+
+`--exclude` flag can be used to exclude certain files and directories from the tree structure. This is useful for excluding files and directories that are not relevant to the tree structure:
+```bash
+gendia --exclude .git,venv
+```
+
 ### Config files
 Gendia's config file can reside in either of the 2 directory's: 
 ```
@@ -72,5 +82,3 @@ You can add the following contents to the file:
 [settings]
 exclude = .git,__pycache__,venv
 ```
-
-The excluded files and foulders in the config file will be appended to the other excluded files you later specify with the `--exclude` flag.

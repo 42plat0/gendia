@@ -4,6 +4,8 @@ import os
 import re
 from typing import Optional, TextIO
 
+# TODO change
+#from . import constants
 import constants
 
 def read_config_file(config, file_paths):
@@ -24,6 +26,7 @@ exclude = read_config_file(config, config_file_paths)
 
 maxdepth: int = None
 currdepth: int = 0
+showIcons: bool = False
 matchpattern: str = ""
 notmatchpattern: str = ""
 
@@ -52,13 +55,12 @@ def get_icon(entry : str) -> str:
         return constants.Icons.DIR
     
     ext_start_ind = entry.find(".")
-    try:
-        ext = entry[ext_start_ind:] if ext_start_ind != -1 else None
-        return constants.ASSIGNED_ICONS[ext]
-    except KeyError:
-        pass
+    ext = entry[ext_start_ind:]
 
-    return constants.Icons.FILE
+    if ext_start_ind == -1 or ext not in constants.ASSIGNED_ICONS.keys():
+        return constants.Icons.FILE
+    
+    return constants.ASSIGNED_ICONS[ext]
 
 
 def print_tree(
@@ -72,6 +74,7 @@ def print_tree(
     global maxdepth
     global exclude
     global matchpattern
+    global showIcons 
 
     if currdepth == maxdepth:
         return
@@ -123,14 +126,14 @@ def print_tree(
         path = f"{directory}/{entry}"
         is_last = index == len(entries) - 1
         color = get_color(path) if output is None else ""
-        icon = get_icon(path)
+        icon = get_icon(path) if showIcons else ""
         reset = constants.AnsiColor.RESET if output is None else ""
 
         # Print the current item with the appropriate prefix
         line = (
-            f"{prefix}└──{icon} {color}{entry}{reset}"
+            f"{prefix}└──{icon}{color}{entry}{reset}"
             if is_last
-            else f"{prefix}├──{icon} {color}{entry}{reset}"
+            else f"{prefix}├──{icon}{color}{entry}{reset}"
         )
         if output:
             output.write(line + "\n")
@@ -152,6 +155,7 @@ def main() -> None:
     global maxdepth
     global matchpattern
     global notmatchpattern
+    global showIcons 
 
     # Create an argument parser
     parser = argparse.ArgumentParser(
@@ -186,6 +190,7 @@ def main() -> None:
     parser.add_argument(
         "--ignore-config", action="store_true", help="Ignore the configuration file"
     )
+    parser.add_argument("-i", "--icon", action="store_true", help="Show icon base on file type")
     args = parser.parse_args()
 
     try:
@@ -196,6 +201,7 @@ def main() -> None:
     maxdepth = args.depth
     matchpattern = args.P
     notmatchpattern = args.l
+    showIcons = args.icon
 
     if args.ignore_config:
         exclude = []
